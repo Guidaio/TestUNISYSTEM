@@ -28,7 +28,7 @@ API de gerenciamento de usuários construída com .NET 9, Clean Architecture, CQ
 
 1. Clone o repositório:
    ```bash
-   git clone [URL_DO_REPOSITÓRIO]
+   git clone [https://github.com/Guidaio/TestUNISYSTEM]
    cd UserAPI
    ```
 
