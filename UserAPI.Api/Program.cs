@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UserAPI.Infrastructure.Data;
 using UserAPI.Application.Features.Users.Commands;
+using UserAPI.Application.Features.Users.Queries;
 using System.Reflection;
 using Microsoft.OpenApi.Models;
 
@@ -17,7 +18,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+    cfg.RegisterServicesFromAssembly(typeof(ListUsersQuery).Assembly);
+});
 
 
 builder.Services.AddEndpointsApiExplorer();
