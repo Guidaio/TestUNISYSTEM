@@ -1,4 +1,5 @@
 using MediatR;
+using UserAPI.Application.Abstractions;
 
 namespace UserAPI.Application.Features.Users.Commands;
 

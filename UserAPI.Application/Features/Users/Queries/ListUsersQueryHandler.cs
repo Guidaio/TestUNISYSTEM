@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using UserAPI.Core.Entities;
-using UserAPI.Application.Features.Users.Commands;
+using UserAPI.Application.Abstractions;
 
 namespace UserAPI.Application.Features.Users.Queries;
 

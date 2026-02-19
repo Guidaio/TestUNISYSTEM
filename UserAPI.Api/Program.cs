@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UserAPI.Infrastructure.Data;
-using UserAPI.Application.Features.Users.Commands;
 using UserAPI.Application.Features.Users.Queries;
+using UserAPI.Application.Abstractions;
 using System.Reflection;
 using Microsoft.OpenApi.Models;
 

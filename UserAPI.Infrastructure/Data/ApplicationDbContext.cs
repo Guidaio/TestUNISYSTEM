@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using UserAPI.Application.Features.Users.Commands;
+using UserAPI.Application.Abstractions;
 using UserAPI.Core.Entities;
 
 namespace UserAPI.Infrastructure.Data;
