@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using UserAPI.Infrastructure.Data;
 using UserAPI.Application.Features.Users.Queries;
 using UserAPI.Application.Abstractions;
+using UserAPI.Api.Middleware;
+using Microsoft.AspNetCore.WebUtilities;
 using System.Reflection;
 using Microsoft.OpenApi.Models;
 
@@ -32,6 +34,35 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseStatusCodePages(async context =>
+{
+    var httpContext = context.HttpContext;
+
+    if (!httpContext.Request.Path.StartsWithSegments("/api"))
+    {
+        return;
+    }
+
+    if (httpContext.Response.HasStarted)
+    {
+        return;
+    }
+
+    var statusCode = httpContext.Response.StatusCode;
+    var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+    {
+        Status = statusCode,
+        Title = ReasonPhrases.GetReasonPhrase(statusCode)
+    };
+
+    problem.Extensions["traceId"] = httpContext.TraceIdentifier;
+
+    httpContext.Response.ContentType = "application/problem+json";
+    await httpContext.Response.WriteAsJsonAsync(problem);
+});
 
 
 app.UseSwagger();
