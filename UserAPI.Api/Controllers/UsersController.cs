@@ -17,9 +17,9 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        var users = await _mediator.Send(new ListUsersQuery());
+        var users = await _mediator.Send(new ListUsersQuery(page, pageSize));
         return Ok(users);
     }
 

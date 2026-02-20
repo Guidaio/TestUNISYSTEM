@@ -1,6 +1,7 @@
-using UserAPI.Core.Entities;
 using MediatR;
+using UserAPI.Application.Abstractions;
+using UserAPI.Core.Entities;
 
 namespace UserAPI.Application.Features.Users.Queries;
 
-public record ListUsersQuery : IRequest<IEnumerable<User>>; 
+public record ListUsersQuery(int Page = 1, int PageSize = 20) : IRequest<PagedResult<User>>;
