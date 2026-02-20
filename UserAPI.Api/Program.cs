@@ -12,8 +12,19 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using UserAPI.Api.Security;
 using Microsoft.AspNetCore.Authentication;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, loggerConfig) =>
+{
+    loggerConfig
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.WithProperty("Application", "UserAPI");
+});
 
 
 builder.Services.AddControllers();
@@ -38,6 +49,40 @@ builder.Services.AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
         options => { });
 
 builder.Services.AddAuthorization();
+
+var serviceName = builder.Configuration["OpenTelemetry:ServiceName"] ?? "UserAPI";
+var otlpEndpoint = builder.Configuration["OpenTelemetry:OtlpEndpoint"];
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService(serviceName))
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddOtlpExporter(options =>
+            {
+                if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+                {
+                    options.Endpoint = new Uri(otlpEndpoint);
+                }
+            });
+    })
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddProcessInstrumentation()
+            .AddOtlpExporter(options =>
+            {
+                if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+                {
+                    options.Endpoint = new Uri(otlpEndpoint);
+                }
+            });
+    });
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -87,6 +132,8 @@ app.UseStatusCodePages(async context =>
     httpContext.Response.ContentType = "application/problem+json";
     await httpContext.Response.WriteAsJsonAsync(problem);
 });
+
+app.UseSerilogRequestLogging();
 
 
 app.UseSwagger();
