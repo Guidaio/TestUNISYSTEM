@@ -104,3 +104,5 @@ Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
 Console.WriteLine($"URLs: {string.Join(", ", app.Urls)}");
 
 app.Run();
+
+public partial class Program;
