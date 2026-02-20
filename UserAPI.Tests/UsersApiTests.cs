@@ -9,6 +9,9 @@ namespace UserAPI.Tests;
 
 public class UsersApiTests : IClassFixture<TestWebApplicationFactory>
 {
+    private const string ApiKeyHeader = "X-API-KEY";
+    private const string ApiKeyValue = "test-key";
+
     private readonly HttpClient _client;
     private readonly IServiceProvider _services;
 
@@ -16,6 +19,7 @@ public class UsersApiTests : IClassFixture<TestWebApplicationFactory>
     {
         _client = factory.CreateClient();
         _services = factory.Services;
+        _client.DefaultRequestHeaders.Add(ApiKeyHeader, ApiKeyValue);
     }
 
     [Fact]
