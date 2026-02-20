@@ -33,8 +33,7 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var users = await _mediator.Send(new ListUsersQuery());
-        var user = users.FirstOrDefault(u => u.Id == id);
+        var user = await _mediator.Send(new GetUserByIdQuery(id));
         
         if (user == null)
             return NotFound();
