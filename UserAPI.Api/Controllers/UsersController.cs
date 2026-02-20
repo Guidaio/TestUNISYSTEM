@@ -6,7 +6,8 @@ using UserAPI.Application.Features.Users.Queries;
 namespace UserAPI.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class UsersController : ControllerBase
 {
     private readonly IMediator _mediator;

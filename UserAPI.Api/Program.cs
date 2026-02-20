@@ -3,9 +3,13 @@ using UserAPI.Infrastructure.Data;
 using UserAPI.Application.Features.Users.Queries;
 using UserAPI.Application.Abstractions;
 using UserAPI.Api.Middleware;
-using Microsoft.AspNetCore.WebUtilities;
 using System.Reflection;
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using UserAPI.Api.Swagger;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,12 +30,23 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(ListUsersQuery).Assembly);
 });
 
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+});
+
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "User API", Version = "v1" });
-});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -68,7 +83,13 @@ app.UseStatusCodePages(async context =>
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "User API V1");
+    var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+    foreach (var description in provider.ApiVersionDescriptions)
+    {
+        c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", $"User API {description.GroupName.ToUpperInvariant()}");
+    }
+
     c.RoutePrefix = string.Empty;
 });
 
